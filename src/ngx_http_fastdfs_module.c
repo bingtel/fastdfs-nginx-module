@@ -359,6 +359,7 @@ static int fdfs_send_file(void *arg, const char *filename, \
         return NGX_HTTP_NOT_FOUND;
     }
 
+    // 内存池
     b = ngx_pcalloc(r->pool, sizeof(ngx_buf_t));
     if (b == NULL)
     {
@@ -388,6 +389,7 @@ static int fdfs_send_file(void *arg, const char *filename, \
     b->last_in_chain = 1;
     b->last_buf = 1;
 
+    // 在nginx中输出内容是通过filter完成的
     rc = ngx_http_output_filter(r, &out);
     if (rc == NGX_OK || rc == NGX_AGAIN)
     {
