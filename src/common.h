@@ -63,71 +63,73 @@
 #define FDFS_MAX_HTTP_RANGES    5
 #define FDFS_MAX_HTTP_BOUNDARY 20
 
-#ifdef __cplusplus
-extern "C" {
+#ifdef __cplusplus // 如果是C++程序，就使用
+extern "C" {  // 在下面的函数不使用的C++的名字修饰，而是用C的
 #endif
 
 struct fdfs_http_response;
 
 typedef void (*FDFSOutputHeaders)(void *arg, struct fdfs_http_response *pResponse);
 typedef int (*FDFSSendReplyChunk)(void *arg, const bool last_buff, \
-				const char *buff, const int size);
+                const char *buff, const int size);
 typedef int (*FDFSSendFile)(void *arg, const char *filename, \
-	const int filename_len, const int64_t file_offset, \
-	const int64_t download_bytes);
+    const int filename_len, const int64_t file_offset, \
+    const int64_t download_bytes);
 
 typedef int (*FDFSProxyHandler)(void *arg, const char *dest_ip_addr);
 
 struct fdfs_http_resp_content_range {
-	int length;
-	char content[64];
+    int length;
+    char content[64];
 };
 
 struct fdfs_http_response {
-	int status;  //HTTP status
-	time_t last_modified;  //last modified time of the file
-	int redirect_url_len;
-	int range_len;  //for redirect
-	int boundary_len;
+    int status;  //HTTP status
+    time_t last_modified;  //last modified time of the file
+    int redirect_url_len;
+    int range_len;  //for redirect
+    int boundary_len;
     short content_range_count;
-	int64_t content_length;
-	char *content_type;
-	char *attachment_filename;
-	char redirect_url[256];
-	char content_disposition[128];
-	char content_type_buff[128];
-	char range[256];  //for redirect
-	char range_content_type[64];  //for multi range content
+    int64_t content_length;
+    char *content_type;
+    char *attachment_filename;
+    char redirect_url[256];
+    char content_disposition[128];
+    char content_type_buff[128];
+    char range[256];  //for redirect
+    char range_content_type[64];  //for multi range content
     struct fdfs_http_resp_content_range content_ranges[FDFS_MAX_HTTP_RANGES];
-	char last_modified_buff[32];
+    char last_modified_buff[32];
     char boundary[FDFS_MAX_HTTP_BOUNDARY];
-	bool header_outputed;   //if header output
+    bool header_outputed;   //if header output
 };
 
+
+// 分片下载
 struct fdfs_http_range {
-	int64_t start;
-	int64_t end;
+    int64_t start;
+    int64_t end;
 };
 
 struct fdfs_http_context {
-	int server_port;
+    int server_port;
     short range_count;
-	bool header_only;
-	bool if_range;
-	struct fdfs_http_range ranges[FDFS_MAX_HTTP_RANGES];
-	char if_modified_since[32];
-	char *url;
-	void *arg; //for callback
-	FDFSOutputHeaders output_headers;
-	FDFSSendFile send_file;   //nginx send file
-	FDFSSendReplyChunk send_reply_chunk;
-	FDFSProxyHandler proxy_handler; //nginx proxy handler
+    bool header_only;
+    bool if_range;
+    struct fdfs_http_range ranges[FDFS_MAX_HTTP_RANGES];
+    char if_modified_since[32];
+    char *url;
+    void *arg; //for callback
+    FDFSOutputHeaders output_headers;
+    FDFSSendFile send_file;   //nginx send file
+    FDFSSendReplyChunk send_reply_chunk;
+    FDFSProxyHandler proxy_handler; //nginx proxy handler
 };
 
 struct fdfs_download_callback_args {
-	struct fdfs_http_context *pContext;
-	struct fdfs_http_response *pResponse;
-	int64_t sent_bytes;  //sent bytes
+    struct fdfs_http_context *pContext;
+    struct fdfs_http_response *pResponse;
+    int64_t sent_bytes;  //sent bytes
     int range_index;
 };
 
@@ -141,26 +143,16 @@ int fdfs_mod_init();
 /**
 * http request handler
 * params:
-*	pContext the context
+*    pContext the context
 * return: http status code, HTTP_OK success, != HTTP_OK fail
 */
 int fdfs_http_request_handler(struct fdfs_http_context *pContext);
 
 /**
-* format http datetime
-* params:
-*	t the time
-*       buff the string buffer
-*       buff_size the buffer size
-* return: 0 success, !=0 fail, return the error code
-*/
-//int fdfs_format_http_datetime(time_t t, char *buff, const int buff_size);
-
-/**
 * parse range parameter
 * params:
-*	value the range value
-*	pContext the context
+*    value the range value
+*    pContext the context
 * return: 0 success, !=0 fail, return the error code
 */
 int fdfs_parse_ranges(const char *value, struct fdfs_http_context *pContext);
